@@ -1,0 +1,3111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Management System</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background-color: #f6f6f7;
+      color: #212b36;
+    }
+
+    /* Top Navigation */
+    .top-nav {
+      background: white;
+      border-bottom: 1px solid #e1e3e5;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 4px;
+    }
+
+    .nav-tab {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #6d7175;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      background: none;
+    }
+
+    .nav-tab.active {
+      background: #f6f6f7;
+      color: #212b36;
+    }
+
+    .nav-tab:hover:not(.active) {
+      background: #f9fafb;
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Dashboard Stats - ALL 3 CARDS IN ONE ROW */
+    .dashboard {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+      width: 100%;
+    }
+
+    @media (min-width: 1px) {
+      .dashboard {
+        grid-template-columns: 2fr 1fr 1fr !important;
+      }
+    }
+
+    .stat-card {
+      background: white;
+      border: 1px solid #e1e3e5;
+      border-radius: 12px;
+      padding: 20px;
+      transition: box-shadow 0.2s;
+    }
+
+    .stat-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .stat-header {
+      font-size: 12px;
+      color: #6d7175;
+      font-weight: 600;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* All Orders Card - Special Layout */
+    .stat-card-orders .stat-main {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .stat-number-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-number {
+      font-size: 32px;
+      font-weight: 700;
+      color: #212b36;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #6d7175;
+      font-weight: 500;
+    }
+
+    .stat-details {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .stat-detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      padding: 6px 0;
+    }
+
+    .stat-detail-row:not(:last-child) {
+      border-bottom: 1px solid #f1f2f4;
+    }
+
+    .stat-detail-label {
+      color: #6d7175;
+      font-weight: 500;
+    }
+
+    .stat-detail-value {
+      font-weight: 600;
+      color: #212b36;
+    }
+
+    /* Status Cards - Compact */
+    .stat-card-status .stat-details {
+      gap: 10px;
+    }
+
+    .stat-card-status .stat-detail-row {
+      padding: 4px 0;
+      border: none;
+    }
+
+    /* Status Pills */
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .status-new-order {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .status-new-order .status-dot {
+      background: #fbbf24;
+    }
+
+    .status-ordered {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .status-ordered .status-dot {
+      background: #3b82f6;
+    }
+
+    .status-delivered {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .status-delivered .status-dot {
+      background: #10b981;
+    }
+
+    .status-completed {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .status-completed .status-dot {
+      background: #059669;
+    }
+
+    .status-awaiting {
+      background: #fed7aa;
+      color: #9a3412;
+    }
+
+    .status-awaiting .status-dot {
+      background: #f97316;
+    }
+
+    .status-cancelled {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .status-cancelled .status-dot {
+      background: #ef4444;
+    }
+
+    /* Search and Actions Bar */
+    .actions-bar {
+      background: white;
+      border: 1px solid #e1e3e5;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .search-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1px solid #c9cccf;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: #005bd3;
+      box-shadow: 0 0 0 3px rgba(0, 91, 211, 0.1);
+    }
+
+    .filter-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .filter-select {
+      padding: 8px 12px;
+      border: 1px solid #c9cccf;
+      border-radius: 8px;
+      font-size: 14px;
+      background: white;
+      cursor: pointer;
+      font-family: inherit;
+      min-width: 160px;
+    }
+
+    .filter-select:focus {
+      outline: none;
+      border-color: #005bd3;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: #005bd3;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #004b9c;
+    }
+
+    .btn-secondary {
+      background: #f6f6f7;
+      color: #212b36;
+      border: 1px solid #c9cccf;
+    }
+
+    .btn-secondary:hover {
+      background: #e3e4e6;
+    }
+
+    /* Orders Table */
+    .orders-card {
+      background: white;
+      border: 1px solid #e1e3e5;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .orders-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #e1e3e5;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .orders-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #212b36;
+    }
+
+    .orders-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .orders-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .orders-table th {
+      background: #f9fafb;
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 600;
+      color: #6d7175;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid #e1e3e5;
+    }
+
+    .orders-table td {
+      padding: 16px;
+      border-bottom: 1px solid #f1f2f4;
+      font-size: 14px;
+      vertical-align: middle;
+    }
+
+    .orders-table tbody tr {
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+
+    .orders-table tbody tr:hover {
+      background: #f9fafb;
+    }
+
+    .order-date {
+      color: #6d7175;
+      font-size: 13px;
+    }
+
+    .order-id {
+      font-weight: 500;
+      color: #212b36;
+    }
+
+    .platform-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .platform-amazon {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .platform-target {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .order-org {
+      font-weight: 500;
+      color: #212b36;
+    }
+
+    .order-event {
+      color: #6d7175;
+      font-size: 13px;
+      margin-top: 2px;
+    }
+
+    .order-total {
+      font-weight: 600;
+      color: #212b36;
+    }
+
+    .action-btn {
+      padding: 6px 12px;
+      font-size: 13px;
+      border-radius: 6px;
+      border: 1px solid #c9cccf;
+      background: white;
+      color: #212b36;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .action-btn:hover {
+      background: #f6f6f7;
+      border-color: #8a8d91;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #6d7175;
+    }
+
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .empty-state-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #212b36;
+      margin-bottom: 8px;
+    }
+
+    /* Loading State */
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+      color: #6d7175;
+    }
+
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f1f2f4;
+      border-top-color: #005bd3;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Tab Content */
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+
+      .search-row {
+        flex-direction: column;
+      }
+
+      .filter-row {
+        flex-direction: column;
+      }
+
+      .filter-select {
+        width: 100%;
+      }
+
+      .orders-table {
+        font-size: 13px;
+      }
+
+      .orders-table td {
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <nav class="nav">
+      <ul class="nav-tabs">
+        <li class="nav-tab active">
+          <a href="#" onclick="showTab('orders')">Orders</a>
+        </li>
+        <li class="nav-tab">
+          <a href="#" onclick="showTab('documents')">Document Submissions</a>
+        </li>
+        <li class="nav-tab">
+          <a href="#" onclick="showTab('setup')">Set Up</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+  <!-- Replace your current container structure with this corrected version: -->
+  <div class="container">
+    <!-- ORDERS TAB -->
+    <div id="orders-tab" class="tab-content">
+
+      <div class="dashboard">
+        <!-- Combined Totals Card -->
+        <div class="metric-card">
+          <div class="metric-title">All Orders</div>
+          <div class="metric-sub">
+            <strong>Amazon:</strong>
+            <span id="amazon-orders">-</span> orders,
+            <span id="amazon-spent">-</span>
+          </div>
+          <div class="metric-sub">
+            <strong>Target:</strong>
+            <span id="target-orders">-</span> orders,
+            <span id="target-spent">-</span>
+          </div>
+          <div class="metric-sub">
+            <strong>Total:</strong>
+            <span id="total-orders">-</span> orders,
+            <span id="total-spent">-</span>
+          </div>
+        </div>
+
+
+
+        <!-- Status Breakdown Card -->
+        <div class="metric-card">
+          <div class="metric-title">Status Breakdown</div>
+          <div class="status-breakdown-grid">
+            <!-- Left Column: Summary Statuses -->
+            <div class="status-column">
+              <h4 class="status-column-title">Summary</h4>
+              <table class="status-table">
+                <thead>
+                  <tr>
+                    <th>Status</th>
+                    <th>Count</th>
+                  </tr>
+                </thead>
+                <tbody id="status-table-summary"></tbody>
+              </table>
+            </div>
+
+            <!-- Right Column: Process Statuses -->
+            <div class="status-column">
+              <h4 class="status-column-title">In Process</h4>
+              <table class="status-table">
+                <thead>
+                  <tr>
+                    <th>Status</th>
+                    <th>Count</th>
+                  </tr>
+                </thead>
+                <tbody id="status-table-process"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Search and Filters -->
+      <div class="search-section">
+        <div class="search-row">
+          <input type="text" class="search-input" id="search-input" placeholder="Search orders, clubs, events...">
+          <select class="filter-select" id="platform-filter">
+            <option value="">All Platforms</option>
+            <option value="amazon">Amazon</option>
+            <option value="target">Target</option>
+          </select>
+          <select class="filter-select" id="club-filter">
+            <option value="">All Organizations</option>
+          </select>
+          <select class="filter-select" id="status-filter">
+            <option value="">All Status</option>
+            <option value="new-order">New Order</option>
+            <option value="ordered">Ordered</option>
+            <option value="delivered-to-mailroom">Delivered to Mailroom</option>
+            <option value="completed">Completed</option>
+            <option value="awaiting-club-response">Awaiting Club Response</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+          <div>
+            <button class="btn btn-primary" onclick="applyFilters()">Search</button>
+            <button class="btn btn-secondary" onclick="clearFilters()">Clear</button>
+          </div>
+        </div>
+        <div id="active-filters" class="search-row" style="display: none;"></div>
+      </div>
+      <!-- Orders Table -->
+      <div class="orders-section">
+        <div class="orders-header">
+          <h2 class="orders-title">Orders</h2>
+          <div>
+            <button class="btn btn-secondary" id="hideCompletedBtn" onclick="toggleCompletedOrders()">
+              Hide Completed
+            </button>
+            <button class="btn btn-primary" onclick="showCreateOrderModal()" style="margin-right: 8px;">+ Create
+              Order</button>
+            <button class="btn btn-secondary" onclick="exportData()">Export CSV</button>
+            <button class="btn btn-primary" onclick="loadOrderData()">Refresh</button>
+          </div>
+        </div>
+        <div id="orders-content">
+          <div class="loading">
+            <div>📡 Loading orders from Google Sheets...</div>
+            <p>Please wait while we fetch your data.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- DOCUMENTS TAB (This should be at the same level as orders-tab, NOT inside it) -->
+    <div id="documents-tab" class="tab-content" style="display: none;">
+      <div class="orders-section">
+        <div class="orders-header">
+          <h2 class="orders-title">Document Submissions</h2>
+          <div>
+            <button class="btn btn-primary" onclick="loadDocumentData()">Refresh</button>
+            <button class="btn btn-secondary" onclick="exportDocumentData()">Export CSV</button>
+          </div>
+        </div>
+        <div id="documents-content">
+          <div class="loading">
+            <div>📄 Loading document submissions...</div>
+            <p>Please wait while we fetch your data.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- SETUP TAB -->
+    <div id="setup-tab" class="tab-content" style="display: none;">
+      <div class="metric-card">
+        <h2>Google Sheets Integration Status</h2>
+        <div id="connection-status">
+          <div class="loading">Testing connection...</div>
+        </div>
+        <div style="margin-top: 20px;">
+          <button class="btn btn-primary" onclick="testConnection()">Test Connection</button>
+        </div>
+        <div style="margin-top: 20px;">
+          <button class="btn btn-primary" onclick="testDocumentSubmissions()">Test Document Submissions</button>
+          <div id="documentFsow-test-status" style="margin-top: 10px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="setup-tab" class="tab-content" style="display: none;">
+    <div class="metric-card">
+      <h2>Google Sheets Integration Status</h2>
+      <div id="connection-status">
+        <div class="loading">Testing connection...</div>
+      </div>
+      <div style="margin-top: 20px;">
+        <button class="btn btn-primary" onclick="testConnection()">Test Connection</button>
+      </div>
+      <div style="margin-top: 20px;">
+        <button class="btn btn-primary" onclick="testDocumentSubmissions()">Test Document Submissions</button>
+        <div id="document-test-status" style="margin-top: 10px;"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+  <!-- Order Details Modal -->
+  <div id="orderModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modalTitle">Order Details</h2>
+        <span class="close" onclick="closeOrderModal()">&times;</span>
+      </div>
+      <div class="modal-body" id="modalBody">
+        <!-- Order details will be populated here -->
+      </div>
+    </div>
+  </div>
+  <!-- Edit Status Modal -->
+  <div id="editStatusModal" class="modal">
+    <div class="modal-content" style="max-width: 500px;">
+      <div class="modal-header">
+        <h2 class="modal-title" id="editModalTitle">Edit Order Status</h2>
+        <span class="close" onclick="closeEditModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="order-details-section">
+          <div class="detail-item" style="margin-bottom: 20px;">
+            <span class="detail-label">Order ID</span>
+            <span class="detail-value" id="editOrderId">-</span>
+          </div>
+          <div class="detail-item" style="margin-bottom: 20px;">
+            <span class="detail-label">Current Status</span>
+            <span class="detail-value">
+              <span class="status-badge" id="currentStatusBadge">pending</span>
+            </span>
+          </div>
+          <div class="detail-item" style="margin-bottom: 30px;">
+            <span class="detail-label">New Status</span>
+            <select id="newStatusSelect" class="filter-select" style="width: 100%; margin-top: 8px;">
+              <option value="new-order">New Order</option>
+              <option value="ordered">Ordered</option>
+              <option value="delivered-to-mailroom">Delivered to Mailroom</option>
+              <option value="completed">Completed</option>
+              <option value="awaiting-club-response">Awaiting Club Response</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          <div style="display: flex; gap: 12px; justify-content: flex-end;">
+            <button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="saveStatusChange()">Update Status</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Edit Order Details Modal -->
+  <div id="editDetailsModal" class="modal">
+    <div class="modal-content" style="max-width: 700px;">
+      <div class="modal-header">
+        <h2 class="modal-title" id="editDetailsModalTitle">Edit Order Details</h2>
+        <span class="close" onclick="closeEditDetailsModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="order-details-section">
+          <h3 class="section-title">📋 Basic Information</h3>
+          <div class="details-grid">
+            <div class="detail-item">
+              <span class="detail-label">Student Organization</span>
+              <input type="text" id="editOrganization" class="search-input" style="width: 100%; margin-top: 4px;">
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Event Name</span>
+              <input type="text" id="editEventName" class="search-input" style="width: 100%; margin-top: 4px;">
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Event Date</span>
+              <input type="date" id="editEventDate" class="search-input" style="width: 100%; margin-top: 4px;">
+            </div>
+          </div>
+        </div>
+        <div class="order-details-section">
+          <h3 class="section-title">👤 Pickup Information</h3>
+          <div class="details-grid">
+            <div class="detail-item">
+              <span class="detail-label">Pickup Person Name</span>
+              <input type="text" id="editPickupPerson" class="search-input" style="width: 100%; margin-top: 4px;">
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Pickup Email</span>
+              <input type="email" id="editPickupEmail" class="search-input" style="width: 100%; margin-top: 4px;">
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Pickup Phone</span>
+              <input type="tel" id="editPickupPhone" class="search-input" style="width: 100%; margin-top: 4px;">
+            </div>
+          </div>
+        </div>
+        <div id="amazonFields" class="order-details-section" style="display: none;">
+          <h3 class="section-title">📦 Amazon Details</h3>
+          <div class="details-grid">
+            <div class="detail-item">
+              <span class="detail-label">Wishlist Link</span>
+              <input type="url" id="editWishlistLink" class="search-input" style="width: 100%; margin-top: 4px;">
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Order Numbers</span>
+              <input type="text" id="editOrderNumbers" class="search-input" style="width: 100%; margin-top: 4px;">
+            </div>
+            <!-- ✨ NEW: Add Backup Items Field -->
+            <div class="detail-item" style="grid-column: 1 / -1;">
+              <span class="detail-label">Backup Items & Quantity</span>
+              <textarea id="editBackupItems" class="search-input"
+                style="width: 100%; margin-top: 4px; min-height: 60px; resize: vertical;"
+                placeholder="Enter backup items and quantities..."></textarea>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Total 1 ($)</span>
+              <input type="number" id="editTotal1" class="search-input" style="width: 100%; margin-top: 4px;"
+                step="0.01" oninput="calculateTotalOrder()">
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Total 2 ($)</span>
+              <input type="number" id="editTotal2" class="search-input" style="width: 100%; margin-top: 4px;"
+                step="0.01" oninput="calculateTotalOrder()">
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Total Order Amount ($)</span>
+              <input type="number" id="editTotalOrder" class="search-input"
+                style="width: 100%; margin-top: 4px; background-color: #f8f9fa;" step="0.01" readonly>
+              <small style="color: #6c757d; font-size: 11px;">Auto-calculated from Total 1 + Total 2</small>
+            </div>
+          </div>
+          <!-- Staff Management Section -->
+          <h3 class="section-title">👥 Staff Management</h3>
+          <div class="details-grid">
+            <div class="detail-item">
+              <span class="detail-label">Processed By <span style="color: red;">*</span></span>
+              <select id="editAmazonProcessedBy" class="filter-select employee-select"
+                style="width: 100%; margin-top: 4px;" onchange="updateTimeProcessed('amazon')" required>
+                <option value="">Select Employee</option>
+              </select>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Time Processed</span>
+              <input type="text" id="editAmazonTimeProcessed" class="search-input"
+                style="width: 100%; margin-top: 4px; background-color: #f8f9fa;" readonly>
+              <small style="color: #6c757d; font-size: 11px;">Auto-updated when Processed By changes</small>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Picked Up Status</span>
+              <select id="editAmazonPickedUpStatus" class="filter-select" style="width: 100%; margin-top: 4px;">
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+              </select>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Non-PO Submitted</span>
+              <select id="editAmazonNonPOSubmitted" class="filter-select" style="width: 100%; margin-top: 4px;">
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+              </select>
+            </div>
+            <div class="detail-item" style="grid-column: 1 / -1;">
+              <span class="detail-label">Staff Comments</span>
+              <textarea id="editAmazonComments" class="search-input"
+                style="width: 100%; margin-top: 4px; min-height: 60px; resize: vertical;"></textarea>
+            </div>
+          </div>
+        </div>
+        <div id="targetFields" class="order-details-section">
+          <h3 class="section-title">🎯 Target Details</h3>
+          <div class="details-grid">
+            <div class="detail-item">
+              <span class="detail-label">Order Confirmation</span>
+              <input type="text" id="editOrderConfirmation" class="search-input" style="width: 100%; margin-top: 4px;">
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Cart Total ($)</span>
+              <input type="number" id="editCartTotal" class="search-input" style="width: 100%; margin-top: 4px;"
+                step="0.01">
+            </div>
+            <!-- ✨ NEW: Add Backup Items Field -->
+            <div class="detail-item" style="grid-column: 1 / -1;">
+              <span class="detail-label">Backup Items & Quantity</span>
+              <textarea id="editTargetBackupItems" class="search-input"
+                style="width: 100%; margin-top: 4px; min-height: 60px; resize: vertical;"
+                placeholder="Enter backup items and quantities..."></textarea>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Picked Up Status</span>
+              <select id="editPickedUpStatus" class="filter-select" style="width: 100%; margin-top: 4px;">
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+              </select>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Processed By <span style="color: red;">*</span></span>
+              <select id="editProcessedBy" class="filter-select employee-select" style="width: 100%; margin-top: 4px;"
+                onchange="updateTimeProcessed('target')" required>
+                <option value="">Select Employee</option>
+              </select>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Time Processed</span>
+              <input type="text" id="editTimeProcessed" class="search-input"
+                style="width: 100%; margin-top: 4px; background-color: #f8f9fa;" readonly>
+              <small style="color: #6c757d; font-size: 11px;">Auto-updated when Processed By changes</small>
+            </div>
+            <div class="detail-item" style="grid-column: 1 / -1;">
+              <span class="detail-label">Staff Comments</span>
+              <textarea id="editComments" class="search-input"
+                style="width: 100%; margin-top: 4px; min-height: 60px; resize: vertical;"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="order-details-section">
+          <h3 class="section-title">📝 Additional Notes</h3>
+          <div class="detail-item">
+            <span class="detail-label">Form Submitter Notes</span>
+            <textarea id="editNotes" class="search-input"
+              style="width: 100%; margin-top: 4px; min-height: 80px; resize: vertical;"></textarea>
+          </div>
+        </div>
+        <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 30px;">
+          <button class="btn btn-secondary" onclick="closeEditDetailsModal()">Cancel</button>
+          <button class="btn btn-primary" onclick="saveOrderDetails()">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Create New Order Modal -->
+  <div id="createOrderModal" class="modal">
+    <div class="modal-content" style="max-width: 700px;">
+      <div class="modal-header">
+        <h2 class="modal-title">Create New Order</h2>
+        <span class="close" onclick="closeCreateOrderModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <form id="createOrderForm">
+          <div class="order-details-section">
+            <h3 class="section-title">🔧 Platform Selection</h3>
+            <div class="detail-item">
+              <span class="detail-label">Platform</span>
+              <select id="createPlatform" class="filter-select" style="width: 100%; margin-top: 4px;"
+                onchange="toggleCreatePlatformFields()" required>
+                <option value="">Select Platform</option>
+                <option value="amazon">Amazon</option>
+                <option value="target">Target</option>
+              </select>
+            </div>
+          </div>
+          <div class="order-details-section">
+            <h3 class="section-title">📋 Basic Information</h3>
+            <div class="details-grid">
+              <div class="detail-item">
+                <span class="detail-label">Submission Email</span>
+                <input type="email" id="createSubmissionEmail" class="search-input"
+                  style="width: 100%; margin-top: 4px;" required>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Student Organization</span>
+                <input type="text" id="createOrganization" class="search-input" style="width: 100%; margin-top: 4px;"
+                  required>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Event Name</span>
+                <input type="text" id="createEventName" class="search-input" style="width: 100%; margin-top: 4px;"
+                  required>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Event Date</span>
+                <input type="date" id="createEventDate" class="search-input" style="width: 100%; margin-top: 4px;"
+                  required>
+              </div>
+            </div>
+          </div>
+          <div class="order-details-section">
+            <h3 class="section-title">👤 Pickup Information</h3>
+            <div class="details-grid">
+              <div class="detail-item">
+                <span class="detail-label">Pickup Person Name</span>
+                <input type="text" id="createPickupPerson" class="search-input" style="width: 100%; margin-top: 4px;"
+                  required>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Pickup Email</span>
+                <input type="email" id="createPickupEmail" class="search-input" style="width: 100%; margin-top: 4px;"
+                  required>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Pickup Phone</span>
+                <input type="tel" id="createPickupPhone" class="search-input" style="width: 100%; margin-top: 4px;"
+                  required>
+              </div>
+            </div>
+          </div>
+          <div id="createAmazonFields" class="order-details-section" style="display: none;">
+            <h3 class="section-title">📦 Amazon Details</h3>
+            <div class="details-grid">
+              <div class="detail-item">
+                <span class="detail-label">Wishlist Link</span>
+                <input type="url" id="createWishlistLink" class="search-input" style="width: 100%; margin-top: 4px;">
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Order Numbers</span>
+                <input type="text" id="createOrderNumbers" class="search-input" style="width: 100%; margin-top: 4px;">
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Total Amount ($)</span>
+                <input type="number" id="createTotalOrder" class="search-input" style="width: 100%; margin-top: 4px;"
+                  step="0.01">
+              </div>
+            </div>
+          </div>
+          <div id="createTargetFields" class="order-details-section" style="display: none;">
+            <h3 class="section-title">🎯 Target Details</h3>
+            <div class="details-grid">
+              <div class="detail-item">
+                <span class="detail-label">Order Confirmation</span>
+                <input type="text" id="createOrderConfirmation" class="search-input"
+                  style="width: 100%; margin-top: 4px;">
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Cart Total ($)</span>
+                <input type="number" id="createCartTotal" class="search-input" style="width: 100%; margin-top: 4px;"
+                  step="0.01">
+              </div>
+            </div>
+          </div>
+          <div class="order-details-section">
+            <h3 class="section-title">📝 Additional Notes</h3>
+            <div class="detail-item">
+              <span class="detail-label">Form Submitter Notes</span>
+              <textarea id="createNotes" class="search-input"
+                style="width: 100%; margin-top: 4px; min-height: 80px; resize: vertical;"
+                placeholder="Any special instructions or notes..."></textarea>
+            </div>
+          </div>
+          <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 30px;">
+            <button type="button" class="btn btn-secondary" onclick="closeCreateOrderModal()">Cancel</button>
+            <button type="button" class="btn btn-primary" onclick="createNewOrder()">Create Order</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Global variables (Cleaned up for clarity)
+    let orderData = {
+      amazon: [],
+      target: []
+    };
+    let namesData = {
+      clubs: [],
+      employees: []
+    };
+    let filteredOrders = [];
+    let documentData = [];
+    let currentPage = 1;
+    const ordersPerPage = 20;
+    let currentEditOrder = null;
+    let currentEditPlatform = null;
+    let isSaving = false; // State lock to prevent simultaneous saves
+    let hideCompleted = false; // Toggle for hiding completed orders
+    let currentSort = { // Global state for current sort setting
+      field: 'submissionId', // Default to sorting by submission ID (newest first)
+      direction: 'desc'
+    };
+
+    // Add this right after your global variables
+    window.debugEditState = function () {
+      console.log('=== EDIT STATE DEBUG ===');
+      console.log('currentEditOrder:', currentEditOrder);
+      console.log('currentEditPlatform:', currentEditPlatform);
+      console.log('========================');
+    };
+    // ✅ ADD THE normalizeStatus() FUNCTION HERE ✅
+    /**
+     * Frontend version of normalizeStatus...
+     */
+    function normalizeStatus(status) {
+      if (!status) return 'unassigned';
+
+      // Convert to lowercase and replace spaces with hyphens
+      const kebab = String(status).trim().toLowerCase().replace(/\s+/g, '-');
+
+      // Map legacy statuses
+      const legacy = {
+        'pending': 'new-order',
+        'processing': 'ordered',
+        'complete': 'completed',
+        'delivered': 'delivered-to-mailroom',
+        'on-hold': 'awaiting-club-response',
+        'hold': 'awaiting-club-response',
+        'waiting': 'awaiting-club-response',
+        'canceled': 'cancelled'
+      };
+
+      return legacy[kebab] || kebab;
+    }
+
+    /**
+     * Helper to calculate Amazon Total Order Amount
+     */
+    function calculateTotalOrder() {
+      const total1 = parseFloat(document.getElementById('editTotal1').value) || 0;
+      const total2 = parseFloat(document.getElementById('editTotal2').value) || 0;
+      const totalOrder = total1 + total2;
+      document.getElementById('editTotalOrder').value = totalOrder.toFixed(2);
+    }
+
+    /**
+     * Tab switching logic
+     */
+    function showTab(tabName, event) {
+      // Prevent default anchor behavior
+      if (event) event.preventDefault();
+
+      // Hide all tabs
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.style.display = 'none';
+      });
+
+      // Remove active class from all nav tabs
+      document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+
+      // Show selected tab
+      const tabElement = document.getElementById(tabName + '-tab');
+      if (tabElement) tabElement.style.display = 'block';
+
+      // Add active class to selected nav tab
+      const clickedTab = event ? event.target.closest('.nav-tab') : document.querySelector(`.nav-tab a[onclick*="${tabName}"]`).parentElement;
+      if (clickedTab) clickedTab.classList.add('active');
+
+
+      // Auto-load data when switching to document submissions tab
+      if (tabName === 'documents') {
+        loadDocumentData();
+      }
+    }
+
+    /**
+     * Load order data from Google Sheets (Central Loading Function)
+     * CRITICAL REFACTOR: Assumes backend now returns cleaner data,
+     * reducing client-side processing overhead.
+     */
+    // Load order data from Google Sheets
+    /**
+     * Load order data from Google Sheets (Central Loading Function)
+     */
+    function loadOrderData() {
+      console.time('⏱️ Total Order Load Time');
+      showLoading('Loading orders from Google Sheets...');
+
+      // Load both orders and names data
+      Promise.all([
+        new Promise((resolve, reject) => {
+          google.script.run
+            .withSuccessHandler(resolve)
+            .withFailureHandler(reject)
+            .getAllOrders();
+        }),
+        new Promise((resolve, reject) => {
+          google.script.run
+            .withSuccessHandler(resolve)
+            .withFailureHandler(reject)
+            .getNamesData();
+        })
+      ]).then(([ordersResult, namesResult]) => {
+        console.timeEnd('⏱️ Total Order Load Time');
+
+        // Process orders data
+        if (ordersResult.success) {
+          console.log(`✅ Backend processed data in ${ordersResult.loadTimeMs || 'N/A'}ms`);
+
+          // FIXED: Use ordersResult (not result)
+          orderData.amazon = ordersResult.amazon || [];
+          orderData.target = ordersResult.target || [];
+
+          console.log(`📊 Loaded ${orderData.amazon.length} Amazon + ${orderData.target.length} Target orders`);
+        }
+
+        // Process names data
+        if (namesResult.success) {
+          namesData.clubs = namesResult.clubs || [];
+          namesData.employees = namesResult.employees || [];
+
+          const searchInput = document.getElementById('search-input');
+          if (namesData.clubs.length > 0 && searchInput) {
+            searchInput.placeholder = `Search orders, clubs (${namesData.clubs.length} available), events...`;
+          }
+
+          updateOrganizationDropdowns();
+        }
+
+        updateMetrics();
+        displayOrders();
+        showSuccess(`Loaded ${ordersResult.total || orderData.amazon.length + orderData.target.length} orders successfully`);
+
+      }).catch(error => {
+        console.timeEnd('⏱️ Total Order Load Time');
+        showError('Error loading data: ' + error.message);
+      });
+    }
+    /**
+     * Update Time Processed field when Processed By is selected in Edit Modal
+     */
+    function updateTimeProcessed(platform) {
+      const now = new Date();
+      const estTime = now.toLocaleString('en-US', {
+        timeZone: 'America/New_York',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+      });
+
+      if (platform === 'amazon') {
+        const processedBy = document.getElementById('editAmazonProcessedBy').value;
+        if (processedBy) {
+          document.getElementById('editAmazonTimeProcessed').value = estTime;
+          console.log('✅ Updated Amazon Time Processed:', estTime);
+        }
+      } else {
+        const processedBy = document.getElementById('editProcessedBy').value;
+        if (processedBy) {
+          document.getElementById('editTimeProcessed').value = estTime;
+          console.log('✅ Updated Target Time Processed:', estTime);
+        }
+      }
+    }
+
+    /**
+     * Show loading state for orders tab
+     */
+    function showLoading(message) {
+      document.getElementById('orders-content').innerHTML = `
+           <div class="loading">
+               <div>📡 ${message}</div>
+               <p>Please wait...</p>
+           </div>
+        `;
+    }
+
+    /**
+     * Show error message for orders tab
+     */
+    function showError(message) {
+      document.getElementById('orders-content').innerHTML = `
+           <div class="error">
+               <strong>Error:</strong> ${message}
+               <br><br>
+               <button class="btn btn-primary" onclick="loadOrderData()">Try Again</button>
+           </div>
+        `;
+    }
+
+    /**
+     * Show success message as a temporary toast
+     */
+    function showSuccess(message) {
+      const successDiv = document.createElement('div');
+      successDiv.className = 'success';
+      successDiv.textContent = message;
+      successDiv.style.cssText = 'position:fixed; top:20px; right:20px; z-index:1001; padding: 12px 16px; border-radius: 4px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);';
+      document.body.appendChild(successDiv);
+
+      setTimeout(() => {
+        if (document.body.contains(successDiv)) {
+          document.body.removeChild(successDiv);
+        }
+      }, 3000);
+    }
+
+    /**
+     * Update dashboard metrics (Orders and Spent)
+     */
+    function updateMetrics() {
+      // This relies on refreshDashboard (called on load) to get accurate totals
+      const totalOrders = orderData.amazon.length + orderData.target.length;
+      document.getElementById('total-orders').textContent = totalOrders;
+      document.getElementById('amazon-orders').textContent = orderData.amazon.length;
+      document.getElementById('target-orders').textContent = orderData.target.length;
+      // Spent amounts rely on the separate getOrderTotals call on DOMContentLoaded
+    }
+
+    /**
+     * Prepare initial filteredOrders list and call render
+     */
+    function displayOrders() {
+      // Combine all orders
+      const allOrders = [
+        ...orderData.amazon.map(order => ({
+          ...order,
+          source: 'amazon',
+          platform: 'amazon'
+        })),
+        ...orderData.target.map(order => ({
+          ...order,
+          source: 'target',
+          platform: 'target'
+        }))
+      ];
+
+      // Apply filters and initial sorting
+      filteredOrders = allOrders; // Start with all, filters will be applied by applyFilters
+
+      applyFilters(); // Apply default filters (none) and default sorting
+    }
+
+    function renderOrdersTable() {
+      const startIndex = (currentPage - 1) * ordersPerPage;
+      const endIndex = startIndex + ordersPerPage;
+      const pageOrders = filteredOrders.slice(startIndex, endIndex);
+
+      let tableHTML = `
+    <table class="orders-table">
+        <thead>
+            <tr>
+                <th>Platform</th>
+                <th>Order ID</th>
+                <th class="sortable-header">
+                    Organization
+                    <div>
+                    <p> Sort By: </p>
+                    <button class="sort-btn" onclick="sortOrders('organization', 'asc')" title="Sort A-Z">A-Z</button>
+                    <button class="sort-btn" onclick="sortOrders('organization', 'desc')" title="Sort Z-A">Z-A</button>
+                    </div>
+                </th>
+                <th>Event</th>
+                <th class="sortable-header">
+                    Event Date
+                    <div>
+                    <p> Sort By: </p>
+                    <button class="sort-btn" onclick="sortOrders('eventDate', 'asc')" title="Sort Oldest First">Oldest First</button>
+                    <button class="sort-btn" onclick="sortOrders('eventDate', 'desc')" title="Sort Newest First">Newest First</button>
+                    </div>
+                </th>
+                <th>Contact</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+    `;
+
+      if (pageOrders.length === 0) {
+        tableHTML += `
+        <tr>
+            <td colspan="9" style="text-align: center; padding: 40px; color: #6c757d;">
+                No orders found matching your criteria
+            </td>
+        </tr>
+    `;
+      } else {
+        pageOrders.forEach(order => {
+
+          // --- DATA LOOKUPS ---
+          const total = order.platform === 'amazon' ? (order.totalOrder || order.Total_Order) : (order.cartTotal || order.Cart_Total);
+          const orderIdDisplay = order.platform === 'amazon' ? (order.orderNumbers || order['Associated Order Numbers']) : (order.orderConfirmation || order.Order_Confirmation_Number);
+
+          const lookupId = String(order.submissionId || order.id || order.Submission_Id || order.Historical_Submission_Id || '');
+
+          const organization = order.organization || order.Student_Organization || 'N/A';
+          const eventName = order.eventName || order.Event_Name || 'N/A';
+          const eventDate = order.eventDate || order.Event_Date || 'N/A';
+          const pickupPerson = order.pickupPerson || order.Pickup_Person_Name || 'N/A';
+          const pickupEmail = order.pickupEmail || order.Pickup_Person_Email || '';
+
+          // 🔥 FIX: Properly normalize status for CSS class
+          const rawStatus = order.status || order.Order_Status || 'pending';
+          const status = normalizeStatus(rawStatus);
+
+          // Convert to proper display format
+          const statusDisplay = status.split('-').map(word =>
+            word.charAt(0).toUpperCase() + word.slice(1)
+          ).join(' ');
+
+          // --- END DATA LOOKUPS ---
+
+          tableHTML += `
+            <tr class="clickable-row" onclick="showOrderDetails('${lookupId}', '${order.platform}')">
+                <td>
+                    <span class="platform-badge platform-${order.platform}">
+                        ${order.platform.toUpperCase()}
+                    </span>
+                </td>
+                <td>${orderIdDisplay || 'N/A'}</td>
+                <td>${organization}</td>
+                <td>${eventName}</td>
+                <td>${eventDate}</td>
+                <td>${pickupPerson}<br>
+                    <small style="color: #6c757d;">${pickupEmail}</small>
+                </td>
+                
+                <td>$${(parseFloat(total) || 0).toFixed(2)}</td> 
+                
+                <td>
+                    <span class="status-badge status-${status}">
+                        ${statusDisplay}
+                    </span>
+                </td>
+<td onclick="event.stopPropagation();">
+    <button class="btn btn-primary" style="font-size: 12px; padding: 4px 8px;" 
+            onclick="editOrder('${lookupId}', '${order.platform}')">
+        Edit
+    </button>
+</td>
+            </tr>
+        `;
+        });
+      }
+
+      tableHTML += `
+        </tbody>
+    </table>
+`;
+
+      // Add pagination
+      const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
+      if (totalPages > 1) {
+        tableHTML += `
+        <div class="pagination">
+            <button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
+                Previous
+            </button>
+    `;
+
+        for (let i = 1; i <= totalPages; i++) {
+          tableHTML += `
+            <button onclick="changePage(${i})" ${i === currentPage ? 'class="active"' : ''}>
+                ${i}
+            </button>
+        `;
+        }
+
+        tableHTML += `
+            <button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
+                Next
+            </button>
+            <span style="margin-left: 20px; color: #6c757d;">
+                Page ${currentPage} of ${totalPages} (${filteredOrders.length} total orders)
+            </span>
+        </div>
+    `;
+      }
+
+      document.getElementById('orders-content').innerHTML = tableHTML;
+    }
+
+    /**
+     * Find order safely (Universal Lookup Key with FINAL ID EXCLUSION).
+     * This version only checks fields designated as unique IDs, COMPLETELY IGNORING
+     * 'cartTotal' and 'totalOrder', thus preventing the 0 lockout.
+     */
+    function findOrder(orderId, platform) {
+      const orders = platform === 'amazon' ? orderData.amazon : orderData.target;
+
+      // 1. Prepare the incoming ID as a clean string for strict comparison.
+      // We explicitly allow '0' to be handled, just in case, but rely on the calling function
+      // (renderOrdersTable) to pass a non-zero ID.
+      const incomingIdStr = String(orderId).trim();
+      if (!incomingIdStr && incomingIdStr !== '0') return null;
+
+      // 2. Define the list of fields to check. CRITICALLY, this list MUST NOT contain
+      // any fields that hold calculated values like cartTotal or totalOrder.
+      const foundOrder = orders.find(o => {
+        const idList = [
+          o.Submission_Id,            // Original Sheet ID
+          o.Historical_Submission_Id, // Legacy/Backup ID
+          o.submissionId,             // Mapped Frontend ID
+          o.id,                       // Fallback numeric/index ID
+          o.Order_Confirmation_Number // Target Display ID
+        ];
+
+        // Check if the incoming ID strictly matches the string value of any core identifier.
+        return idList.some(storedId => {
+          // Check for existence AND strict string match.
+          // This bypasses any accidental numeric coercion issues.
+          return String(storedId).trim() === incomingIdStr;
+        });
+      });
+
+      if (!foundOrder) {
+        console.error(`❌ ULTIMATE LOCKOUT FAILURE: Order ID ${orderId} not found on platform ${platform}. 
+                      The ID used in the table click might be corrupted/missing.`);
+      }
+
+      return foundOrder;
+    }
+
+    function showOrderDetails(orderId, platform) {
+      console.log('🔍 showOrderDetails called with:', { orderId, platform });
+      const order = findOrder(orderId, platform);
+
+      if (!order) {
+        console.error('❌ Order not found.', { orderId, platform });
+        showError(`Order with ID ${orderId} not found in ${platform} orders`);
+        return;
+      }
+
+      const modal = document.getElementById('orderModal');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalBody = document.getElementById('modalBody');
+
+      // Order ID display
+      let orderDisplayId;
+      if (platform === 'amazon') {
+        orderDisplayId = order.orderNumbers || order['Associated Order Numbers'] || 'N/A';
+      } else {
+        orderDisplayId = order.orderConfirmation || order.Order_Confirmation_Number || order.Submission_Id || 'N/A';
+      }
+
+      modalTitle.textContent = `${platform.toUpperCase()} Order Details - ${orderDisplayId}`;
+
+      // 🔥 FIX: Properly normalize status
+      const rawStatus = order.status || order.Order_Status || 'pending';
+      const status = normalizeStatus(rawStatus);
+      const statusDisplay = status.split('-').map(word =>
+        word.charAt(0).toUpperCase() + word.slice(1)
+      ).join(' ');
+
+      const wishlistLink = order.wishlistLink || order.Wishlist_Link;
+      const totalAmount = (order.totalOrder || order.Total_Order || order.cartTotal || order.Cart_Total || 0).toFixed(2);
+      const formNotes = order.formNotes || order['Form Submitter Notes'] || 'No additional notes';
+      const targetOrderConfirmation = order.orderConfirmation || order.Order_Confirmation_Number || 'N/A';
+
+      let modalContent = `
+        <div class="order-details-section">
+            <h3 class="section-title">📋 Order Information</h3>
+            <div class="details-grid">
+                <div class="detail-item">
+                    <span class="detail-label">Submission Date</span>
+                    <span class="detail-value">${order.timestamp || order.Timestamp || 'N/A'}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Order Status</span>
+                    <span class="detail-value">
+                        <span class="status-badge status-${status}">${statusDisplay}</span>
+                    </span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Total Amount</span>
+                    <span class="detail-value"><strong>$${totalAmount}</strong></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Submission Email</span>
+                    <span class="detail-value">${order.submissionEmail || order.Submission_Email_Address || 'N/A'}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Student Organization</span>
+                    <span class="detail-value">${order.organization || order.Student_Organization || 'N/A'}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Event Date</span>
+                    <span class="detail-value">${order.eventDate || order.Event_Date || 'N/A'}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="order-details-section">
+            <h3 class="section-title">👤 Pickup & Staff Management</h3>
+            <div class="details-grid">
+                <div class="detail-item">
+                    <span class="detail-label">Pickup Person Name</span>
+                    <span class="detail-value">${order.pickupPerson || order.Pickup_Person_Name || 'N/A'}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Picked Up Status</span>
+                    <span class="detail-value">${order.pickedUpStatus || order.Picked_Up_Status || 'No'}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Processed By</span>
+                    <span class="detail-value">${order.processedBy || order.Processed_By || 'Not yet processed'}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Time Processed</span>
+                    <span class="detail-value">${order.timeProcessedBy || order.Time_Processed_By || 'N/A'}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="order-details-section">
+            <h3 class="section-title">
+                ${platform === 'amazon' ? '📦 Amazon Specifics' : '🎯 Target Specifics'}
+            </h3>
+            <div class="details-grid">
+                ${platform === 'amazon' ? `
+                    <div class="detail-item">
+                        <span class="detail-label">Wishlist Link</span>
+                        <span class="detail-value">
+                            ${wishlistLink ? `<a href="${wishlistLink}" target="_blank" class="item-url">View Wishlist</a>` : 'N/A'}
+                        </span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Order Numbers</span>
+                        <span class="detail-value">${orderDisplayId}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Non-PO Submitted</span>
+                        <span class="detail-value">${order.nonPOSubmitted || order.Non_PO_Submitted || 'No'}</span>
+                    </div>
+                ` : `
+                    <div class="detail-item">
+                        <span class="detail-label">Order Confirmation Number</span>
+                        <span class="detail-value">${targetOrderConfirmation}</span>
+                    </div>
+                    <div class="detail-item" style="grid-column: 2 / -1;">
+                        <span class="detail-label">Cart Total</span>
+                        <span class="detail-value">$${(order.cartTotal || order.Cart_Total || 0).toFixed(2)}</span>
+                    </div>
+                `}
+                ${(order.backupItems || order.Backup_Items_And_Quantity) ? `
+                    <div class="detail-item" style="grid-column: 1 / -1;">
+                        <span class="detail-label">Backup Items & Quantity</span>
+                        <span class="detail-value">${order.backupItems || order.Backup_Items_And_Quantity}</span>
+                    </div>
+                ` : ''}
+                ${(order.comments || order.Comments) ? `
+                    <div class="detail-item" style="grid-column: 1 / -1;">
+                        <span class="detail-label">Staff Comments</span>
+                        <span class="detail-value">${order.comments || order.Comments}</span>
+                    </div>
+                ` : ''}
+            </div>
+        </div>
+        
+        <div class="order-details-section">
+            <h3 class="section-title">📝 Submitter Notes</h3>
+            <div class="detail-item">
+                <span class="detail-value" style="font-style: italic;">${formNotes}</span>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
+            <button class="btn btn-secondary" onclick="closeOrderModal()">Close</button>
+            <button class="btn btn-primary" onclick="editOrderDetails(${order.submissionId || order.id}, '${platform}')">
+                Edit Details
+            </button>
+        </div>
+    `;
+
+      modalBody.innerHTML = modalContent;
+      modal.style.display = 'block';
+    }
+
+
+    /**
+     * Redirects to the Edit Details Modal - Fixed with robust ID matching
+     */
+    function editOrderDetails(orderId, platform) {
+      console.log('📝 editOrderDetails called with:', {
+        orderId,
+        platform
+      });
+
+      closeOrderModal();
+      const order = findOrder(orderId, platform);
+
+      if (!order) {
+        console.error('❌ Order not found for editing:', {
+          orderId,
+          platform
+        });
+        showError(`Order with ID ${orderId} not found`);
+        return;
+      }
+
+      currentEditOrder = order;
+      currentEditPlatform = platform;
+      window.currentEditDocument = null; // Clear document edit state
+
+      showEditDetailsModal(order, platform);
+    }
+
+    /**
+     * Redirects to the Edit Status Modal - Fixed with robust ID matching
+     */
+    function editOrder(orderId, platform) {
+      console.log('🔧 editOrder (status) called with:', { orderId, platform });
+
+      // Validate platform parameter
+      if (!platform || platform === 'null' || platform === 'undefined') {
+        console.error('❌ Invalid platform received:', platform);
+        showError('Unable to edit order: Invalid platform');
+        return;
+      }
+
+      const order = findOrder(orderId, platform);
+
+      if (!order) {
+        console.error('❌ Order not found for status edit:', { orderId, platform });
+        showError(`Order with ID ${orderId} not found in ${platform} orders`);
+        return;
+      }
+
+      // CRITICAL: Store these in global variables
+      currentEditOrder = order;
+      currentEditPlatform = platform;
+      window.currentEditDocument = null; // Clear document edit state
+
+      console.log('✅ Set currentEditPlatform to:', currentEditPlatform);
+      console.log('✅ Set currentEditOrder:', currentEditOrder);
+
+      const orderIdDisplay = platform === 'amazon' ?
+        (order.orderNumbers || order['Associated Order Numbers'] || order.submissionId || order.id || 'Unknown') :
+        (order.orderConfirmation || order.Order_Confirmation_Number || order.submissionId || order.id || 'Unknown');
+
+      document.getElementById('editOrderId').textContent = `${orderIdDisplay} (Submission: ${order.submissionId || order.id})`;
+      document.getElementById('editModalTitle').textContent = `Edit ${platform.toUpperCase()} Order Status`;
+
+      const currentStatus = (order.status || order.Order_Status || 'pending').toLowerCase();
+      const normalizedStatus = normalizeStatus(currentStatus);
+
+      const statusBadge = document.getElementById('currentStatusBadge');
+      const statusDisplay = normalizedStatus.split('-').map(word =>
+        word.charAt(0).toUpperCase() + word.slice(1)
+      ).join(' ');
+
+      statusBadge.textContent = statusDisplay;
+      statusBadge.className = `status-badge status-${normalizedStatus}`;
+
+      document.getElementById('newStatusSelect').value = normalizedStatus;
+      document.getElementById('editStatusModal').style.display = 'block';
+    }
+
+
+    /**
+     * Show edit details modal and populate fields
+     * FINAL FIX: Aggressively formats numeric 0 to string '0.00' for display input, 
+     * preventing the internal numeric lockout.
+     */
+    /**
+     * Show edit details modal and populate fields
+     * FINAL FIX: Aggressively formats numeric 0 to string '0.00' for display input, 
+     * preventing the internal numeric lockout.
+     */
+    /**
+     * Show edit details modal and populate fields
+     * FINAL FIX: Uses safe OR operator (||) for Amazon totals to ensure compatibility 
+     * and handles Target zero values with explicit formatting.
+     */
+    function showEditDetailsModal(order, platform) {
+      const modal = document.getElementById('editDetailsModal');
+      const modalTitle = document.getElementById('editDetailsModalTitle');
+
+      modalTitle.textContent = `Edit ${platform.toUpperCase()} Order Details`;
+
+      // Populate common fields (unchanged)
+      document.getElementById('editOrganization').value = order.organization || order.Student_Organization || '';
+      document.getElementById('editEventName').value = order.eventName || order.Event_Name || '';
+      document.getElementById('editEventDate').value = order.eventDate || order.Event_Date || '';
+      document.getElementById('editPickupPerson').value = order.pickupPerson || order.Pickup_Person_Name || '';
+      document.getElementById('editPickupEmail').value = order.pickupEmail || order.Pickup_Person_Email || '';
+      document.getElementById('editPickupPhone').value = order.pickupPhone || order.Pickup_Person_Phone || '';
+      document.getElementById('editNotes').value = order.formNotes || order['Form Submitter Notes'] || '';
+
+      // Hide platform sections by default
+      document.getElementById('amazonFields').style.display = 'none';
+      document.getElementById('targetFields').style.display = 'none';
+
+      // Populate platform-specific fields
+      if (platform === 'amazon') {
+        document.getElementById('amazonFields').style.display = 'block';
+        document.getElementById('editWishlistLink').value = order.wishlistLink || order.Wishlist_Link || '';
+        document.getElementById('editOrderNumbers').value = order.orderNumbers || order['Associated Order Numbers'] || '';
+
+        // ✅ FIX: Use logical OR (||) for universal compatibility
+        document.getElementById('editTotal1').value = order.Total_1 || 0;
+        document.getElementById('editTotal2').value = order.Total_2 || 0;
+        document.getElementById('editTotalOrder').value = order.Total_Order || order.totalOrder || 0;
+
+        document.getElementById('editAmazonBackupItems').value = order.backupItems || order.Backup_Items_And_Quantity || '';
+
+        // Staff Fields (Unchanged)
+        updateEmployeeDropdowns();
+        document.getElementById('editAmazonProcessedBy').value = order.processedBy || order.Processed_By || '';
+        document.getElementById('editAmazonTimeProcessed').value = order.timeProcessedBy || order.Time_Processed_By || '';
+        document.getElementById('editAmazonPickedUpStatus').value = order.pickedUpStatus || order.Picked_Up_Status || 'No';
+        document.getElementById('editAmazonNonPOSubmitted').value = order.nonPOSubmitted || order.Non_PO_Submitted || 'No';
+        document.getElementById('editAmazonComments').value = order.comments || order.Comments || '';
+      } else {
+        document.getElementById('targetFields').style.display = 'block';
+        document.getElementById('editOrderConfirmation').value = order.orderConfirmation || order.Order_Confirmation_Number || '';
+
+        // 🔥 Target Cart Total Fix (Confirmed Robust)
+        const rawCartTotal = order.cartTotal ?? order.Cart_Total;
+        const numericCartValue = parseFloat(rawCartTotal);
+
+        if (!isNaN(numericCartValue)) {
+          document.getElementById('editCartTotal').value = numericCartValue.toFixed(2);
+        } else {
+          document.getElementById('editCartTotal').value = '';
+        }
+
+        document.getElementById('editTargetBackupItems').value = order.backupItems || order.Backup_Items_And_Quantity || '';
+
+        // Staff Fields (Unchanged)
+        updateEmployeeDropdowns();
+        document.getElementById('editPickedUpStatus').value = order.pickedUpStatus || order.Picked_Up_Status || 'No';
+        document.getElementById('editProcessedBy').value = order.processedBy || order.Processed_By || '';
+        document.getElementById('editTimeProcessed').value = order.timeProcessedBy || order.Time_Processed_By || '';
+        document.getElementById('editComments').value = order.comments || order.Comments || '';
+      }
+
+      modal.style.display = 'block';
+    }
+
+
+    /**
+     * Close edit details modal
+     */
+    function closeEditDetailsModal() {
+      document.getElementById('editDetailsModal').style.display = 'none';
+      currentEditOrder = null;
+      currentEditPlatform = null;
+      window.currentEditDocument = null; // Important: Clear document edit state
+    }
+
+    /**
+     * Save order details - FINAL FIX: Prevents saving explicit '0' when the cart total field is empty.
+     */
+    function saveOrderDetails() {
+      // Check if editing a document instead
+      if (window.currentEditDocument) {
+        saveDocumentDetails();
+        return;
+      }
+
+      if (!currentEditOrder || !currentEditPlatform) {
+        showError('No order selected for editing');
+        return;
+      }
+
+      const orderToEdit = currentEditOrder;
+      const platformToEdit = currentEditPlatform;
+
+      if (isSaving) {
+        console.log('⚠️ Save already in progress, ignoring duplicate request');
+        return;
+      }
+
+      isSaving = true;
+      console.log('🔒 Save lock acquired');
+
+      const saveButton = document.querySelector('#editDetailsModal .btn-primary');
+      const originalText = saveButton.textContent;
+      saveButton.textContent = 'Saving...';
+      saveButton.disabled = true;
+
+      try {
+        // Helper: Returns raw field value. If input is blank, returns ''.
+        const getElementValue = (id) => {
+          const element = document.getElementById(id);
+          // Returns the input field's value, which is an empty string if blank
+          return element ? element.value : '';
+        };
+
+        const updatedData = {};
+        updatedData.Student_Organization = getElementValue('editOrganization');
+        updatedData.Event_Name = getElementValue('editEventName');
+        updatedData.Event_Date = getElementValue('editEventDate');
+        updatedData.Pickup_Person_Name = getElementValue('editPickupPerson');
+        updatedData.Pickup_Person_Email = getElementValue('editPickupEmail');
+        updatedData.Pickup_Person_Phone = getElementValue('editPickupPhone');
+        updatedData['Form Submitter Notes'] = getElementValue('editNotes');
+
+        // Platform-specific fields
+        if (platformToEdit === 'amazon') {
+          updatedData.Wishlist_Link = getElementValue('editWishlistLink');
+          updatedData['Associated Order Numbers'] = getElementValue('editOrderNumbers');
+
+          // Amazon totals: If input is blank, send '' (empty string), otherwise send the value.
+          updatedData.Total_1 = getElementValue('editTotal1');
+          updatedData.Total_2 = getElementValue('editTotal2');
+          updatedData.Total_Order = getElementValue('editTotalOrder');
+
+          updatedData.Backup_Items_And_Quantity = getElementValue('editAmazonBackupItems');
+          updatedData.Processed_By = getElementValue('editAmazonProcessedBy');
+          updatedData.Time_Processed_By = getElementValue('editAmazonTimeProcessed');
+          updatedData.Picked_Up_Status = getElementValue('editAmazonPickedUpStatus');
+          updatedData.Non_PO_Submitted = getElementValue('editAmazonNonPOSubmitted');
+          updatedData.Comments = getElementValue('editAmazonComments');
+        } else {
+          updatedData.Order_Confirmation_Number = getElementValue('editOrderConfirmation');
+
+          // 🔥 CRITICAL FIX: If input is '0' or blank, retrieve the value, then check if it is numeric.
+          // Only submit the numeric value if it was actually entered; otherwise, submit empty string.
+          const rawCartTotal = getElementValue('editCartTotal');
+          const numericCartTotal = parseFloat(rawCartTotal);
+
+          if (rawCartTotal === '') {
+            // User left field blank: submit empty string to sheet
+            updatedData.Cart_Total = '';
+          } else if (isNaN(numericCartTotal)) {
+            // User entered non-numeric garbage: submit the raw garbage or clear it, depending on desired Sheet behavior. We'll send empty string.
+            updatedData.Cart_Total = '';
+          } else {
+            // User entered a number (e.g., '10.50' or '0'): submit the number as a string for Sheet consistency.
+            updatedData.Cart_Total = String(numericCartTotal);
+          }
+
+          updatedData.Backup_Items_And_Quantity = getElementValue('editTargetBackupItems');
+          updatedData.Picked_Up_Status = getElementValue('editPickedUpStatus');
+          updatedData.Processed_By = getElementValue('editProcessedBy');
+          updatedData.Time_Processed_By = getElementValue('editTimeProcessed');
+          updatedData.Comments = getElementValue('editComments');
+        }
+
+        // --- Local Data Update ---
+        const localUpdates = {
+          organization: updatedData.Student_Organization,
+          eventName: updatedData.Event_Name,
+          eventDate: updatedData.Event_Date,
+          pickupPerson: updatedData.Pickup_Person_Name,
+          pickupEmail: updatedData.Pickup_Person_Email,
+          pickupPhone: updatedData.Pickup_Person_Phone,
+          formNotes: updatedData['Form Submitter Notes'],
+
+          // Update local fields: if the field is blank, the local object gets '' (empty string), which is safe.
+          cartTotal: (platformToEdit === 'target') ? (parseFloat(updatedData.Cart_Total) || '') : orderToEdit.cartTotal,
+          totalOrder: (platformToEdit === 'amazon') ? (parseFloat(updatedData.Total_Order) || '') : orderToEdit.totalOrder
+        };
+
+        Object.assign(orderToEdit, localUpdates, updatedData);
+
+        // --- ID Safety Check ---
+        const orderId = orderToEdit.Submission_Id ||
+          orderToEdit.submissionId ||
+          orderToEdit.Historical_Submission_Id ||
+          orderToEdit.id;
+
+        // Ensure the ID being saved is not accidentally '0' or empty
+        if (!orderId || String(orderId).trim() === '0') {
+          console.error("❌ CRITICAL ERROR: Order object has an empty or zero ID. Cannot save.");
+          isSaving = false;
+          saveButton.textContent = originalText;
+          saveButton.disabled = false;
+          showError('Error: Order lost its unique ID. Data not saved.');
+          return;
+        }
+
+        // Close modal immediately and update view
+        closeEditDetailsModal();
+        renderOrdersTable();
+
+        // --- Backend Submission ---
+        google.script.run
+          .withSuccessHandler(function (result) {
+            isSaving = false;
+            saveButton.textContent = originalText;
+            saveButton.disabled = false;
+            if (result.success) {
+              showSuccess('Order saved successfully');
+              refreshDashboard();
+            } else {
+              showError('Failed to save: ' + result.message);
+            }
+          })
+          .withFailureHandler(function (error) {
+            isSaving = false;
+            saveButton.textContent = originalText;
+            saveButton.disabled = false;
+            showError('Save error: ' + error.message);
+          })
+          .updateOrderDetails(orderId, platformToEdit, updatedData);
+
+      } catch (error) {
+        isSaving = false;
+        console.error('❌ Error in saveOrderDetails:', error);
+        saveButton.textContent = originalText;
+        saveButton.disabled = false;
+        showError('Error preparing save: ' + error.message);
+      }
+    }
+
+
+    /**
+     * Show create new order modal
+     */
+    function showCreateOrderModal() {
+      const modal = document.getElementById('createOrderModal');
+      document.getElementById('createOrderForm').reset();
+      toggleCreatePlatformFields();
+      modal.style.display = 'block';
+    }
+
+    /**
+     * Close create order modal
+     */
+    function closeCreateOrderModal() {
+      document.getElementById('createOrderModal').style.display = 'none';
+    }
+
+    /**
+     * Toggle platform-specific fields in create modal
+     */
+    function toggleCreatePlatformFields() {
+      const platform = document.getElementById('createPlatform').value;
+      document.getElementById('createAmazonFields').style.display = (platform === 'amazon' ? 'block' : 'none');
+      document.getElementById('createTargetFields').style.display = (platform === 'target' ? 'block' : 'none');
+    }
+
+    /**
+     * Create new order
+     */
+    function createNewOrder() {
+      const platform = document.getElementById('createPlatform').value;
+
+      if (!platform) {
+        showError('Please select a platform');
+        return;
+      }
+
+      const createButton = document.querySelector('#createOrderModal .btn-primary');
+      const originalText = createButton.textContent;
+      createButton.textContent = 'Creating...';
+      createButton.disabled = true;
+
+      const submissionId = Date.now(); // Unique ID
+
+      // Prepare data for Google Sheets (using exact column names)
+      const sheetData = {
+        submissionId: submissionId,
+        Timestamp: new Date().toLocaleString(),
+        Submission_Email_Address: document.getElementById('createSubmissionEmail').value,
+        Student_Organization: document.getElementById('createOrganization').value,
+        Event_Name: document.getElementById('createEventName').value,
+        Event_Date: document.getElementById('createEventDate').value,
+        Pickup_Person_Name: document.getElementById('createPickupPerson').value,
+        Pickup_Person_Email: document.getElementById('createPickupEmail').value,
+        Pickup_Person_Phone: document.getElementById('createPickupPhone').value,
+        'Form Submitter Notes': document.getElementById('createNotes').value,
+        Semester_Id: 'Fall2025',
+        Submission_Id: submissionId,
+        Order_Status: 'pending'
+      };
+
+      // Add platform-specific fields
+      if (platform === 'amazon') {
+        sheetData.Wishlist_Link = document.getElementById('createWishlistLink').value;
+        sheetData['Associated Order Numbers'] = document.getElementById('createOrderNumbers').value;
+        sheetData.Total_Order = parseFloat(document.getElementById('createTotalOrder').value) || 0;
+      } else {
+        sheetData.Order_Confirmation_Number = document.getElementById('createOrderConfirmation').value;
+        sheetData.Cart_Total = parseFloat(document.getElementById('createCartTotal').value) || 0;
+        sheetData.Picked_Up_Status = 'No';
+        sheetData.Processed_By = '';
+        sheetData.Time_Processed_By = '';
+        sheetData.Comments = '';
+      }
+
+      // Save to Google Sheets
+      google.script.run
+        .withSuccessHandler(function (result) {
+          createButton.textContent = originalText;
+          createButton.disabled = false;
+
+          if (result.success) {
+            showSuccess(`New ${platform} order created successfully. Refreshing list...`);
+            closeCreateOrderModal();
+            loadOrderData(); // Reload all data to ensure new order is merged, sorted, and filtered correctly
+            refreshDashboard();
+          } else {
+            showError('Failed to create order: ' + result.message);
+          }
+        })
+        .withFailureHandler(function (error) {
+          createButton.textContent = originalText;
+          createButton.disabled = false;
+          showError('Error creating order: ' + error.message);
+        })
+        .createNewOrder(sheetData, platform);
+    }
+
+    /**
+     * Close order details modal
+     */
+    function closeOrderModal() {
+      document.getElementById('orderModal').style.display = 'none';
+    }
+
+    /**
+     * Close edit status modal
+     */
+    function closeEditModal() {
+      document.getElementById('editStatusModal').style.display = 'none';
+      currentEditOrder = null;
+      currentEditPlatform = null;
+    }
+
+    /**
+     * Update organization dropdowns and autocompletes
+     */
+    function updateOrganizationDropdowns() {
+      const createOrgInput = document.getElementById('createOrganization');
+      const editOrgInput = document.getElementById('editOrganization');
+      const clubFilter = document.getElementById('club-filter');
+
+      if (namesData.clubs.length > 0) {
+        let datalist = document.getElementById('clubsList');
+        if (!datalist) {
+          datalist = document.createElement('datalist');
+          datalist.id = 'clubsList';
+          document.body.appendChild(datalist);
+        }
+        datalist.innerHTML = namesData.clubs.map(club => `<option value="${club}">`).join('');
+
+        createOrgInput.setAttribute('list', 'clubsList');
+        editOrgInput.setAttribute('list', 'clubsList');
+        createOrgInput.placeholder = `Select from ${namesData.clubs.length} clubs or type new name...`;
+        editOrgInput.placeholder = `Select from ${namesData.clubs.length} clubs or type new name...`;
+
+        clubFilter.innerHTML = '<option value="">All Organizations</option>' +
+          namesData.clubs.map(club => `<option value="${club}">${club}</option>`).join('');
+
+        console.log(`Updated organization dropdowns with ${namesData.clubs.length} clubs`);
+      }
+
+      if (namesData.employees.length > 0) {
+        updateEmployeeDropdowns();
+      }
+    }
+
+    /**
+     * Update employee dropdowns in edit modals
+     */
+    function updateEmployeeDropdowns() {
+      const employeeSelects = document.querySelectorAll('.employee-select');
+
+      employeeSelects.forEach(select => {
+        const currentValue = select.value;
+        select.innerHTML = '<option value="">Select Employee</option>';
+
+        namesData.employees.forEach(employee => {
+          const option = document.createElement('option');
+          option.value = employee;
+          option.textContent = employee;
+          select.appendChild(option);
+        });
+
+        if (currentValue && namesData.employees.includes(currentValue)) {
+          select.value = currentValue;
+        }
+      });
+    }
+
+    /**
+     * Apply all filters and update the table display.
+     * FIX: Declares total amount string correctly for search, and includes all financial fields.
+     */
+    function applyFilters() {
+      const searchTerm = document.getElementById('search-input').value.toLowerCase().trim();
+      const platformFilter = document.getElementById('platform-filter').value;
+      const clubFilter = document.getElementById('club-filter').value;
+      const statusFilter = document.getElementById('status-filter').value;
+
+      const allOrders = [
+        ...orderData.amazon.map(order => ({ ...order, platform: 'amazon' })),
+        ...orderData.target.map(order => ({ ...order, platform: 'target' }))
+      ];
+
+      // Apply filters
+      let currentFilteredOrders = allOrders.filter(order => {
+
+        const total = order.platform === 'amazon' ? (order.totalOrder || order.Total_Order) : (order.cartTotal || order.Cart_Total);
+        const totalAmountStr = String(total || '').toLowerCase();
+
+        const searchFields = [
+          order.organization,
+          order.Student_Organization,
+          order.eventName,
+          order.Event_Name,
+          order.pickupPerson,
+          order.Pickup_Person_Name,
+          order.pickupEmail,
+          order.Pickup_Person_Email,
+          order.submissionEmail,
+          order.Submission_Email_Address,
+          order.orderNumbers,
+          order['Associated Order Numbers'],
+          order.orderConfirmation,
+          order.Order_Confirmation_Number,
+          totalAmountStr
+        ].filter(String).join(' ').toLowerCase();
+
+        const matchesSearch = !searchTerm || searchFields.includes(searchTerm);
+        const matchesPlatform = !platformFilter || order.platform === platformFilter;
+        const matchesClub = !clubFilter || order.organization === clubFilter || order.Student_Organization === clubFilter;
+
+        // 🔥 FIX: Normalize status before comparison
+        const rawStatus = order.status || order.Order_Status || 'pending';
+        const normalizedOrderStatus = normalizeStatus(rawStatus);
+        const matchesStatus = !statusFilter || normalizedOrderStatus === statusFilter;
+
+        // 🔥 FIX: Check for "completed" status when hiding completed orders
+        const matchesCompletedFilter = !hideCompleted || normalizedOrderStatus !== 'completed';
+
+        return matchesSearch && matchesPlatform && matchesClub && matchesStatus && matchesCompletedFilter;
+      });
+
+      // Apply global sort state
+      currentFilteredOrders.sort((a, b) => {
+        let aValue = a[currentSort.field] || '';
+        let bValue = b[currentSort.field] || '';
+
+        // Handle date or numeric fields
+        if (currentSort.field === 'eventDate') {
+          aValue = aValue ? new Date(aValue) : new Date('1900-01-01');
+          bValue = bValue ? new Date(bValue) : new Date('1900-01-01');
+        } else if (currentSort.field === 'submissionId' || currentSort.field === 'id') {
+          aValue = parseInt(aValue) || 0;
+          bValue = parseInt(bValue) || 0;
+        } else {
+          aValue = String(aValue).toLowerCase();
+          bValue = String(bValue).toLowerCase();
+        }
+
+        let comparison = 0;
+        if (aValue > bValue) comparison = 1;
+        else if (aValue < bValue) comparison = -1;
+
+        return currentSort.direction === 'asc' ? comparison : comparison * -1;
+      });
+
+      // Update global filtered list
+      filteredOrders = currentFilteredOrders;
+
+      // Reset page if necessary
+      const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
+      if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
+      else if (currentPage < 1 && filteredOrders.length > 0) currentPage = 1;
+
+      renderOrdersTable();
+      updateActiveFilters();
+    }
+
+    /**
+     * Sort orders function - Updates state and re-applies filters/renders
+     * CRITICAL FIX: Separates state update from rendering flow
+     */
+    function sortOrders(field, direction) {
+      currentSort.field = field;
+      currentSort.direction = direction;
+
+      // Reset to first page
+      currentPage = 1;
+
+      // Remove active class from all sort buttons
+      document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
+
+      // Re-apply filters, which handles the actual sorting based on new state
+      applyFilters();
+    }
+
+    /**
+     * Clear all filters
+     */
+    function clearFilters() {
+      document.getElementById('search-input').value = '';
+      document.getElementById('platform-filter').value = '';
+      document.getElementById('club-filter').value = '';
+      document.getElementById('status-filter').value = '';
+
+      hideCompleted = false;
+      const btn = document.getElementById('hideCompletedBtn');
+      btn.textContent = 'Hide Completed';
+      btn.className = 'btn btn-secondary';
+
+      // Reset sort to default (Submission ID desc)
+      currentSort.field = 'submissionId';
+      currentSort.direction = 'desc';
+
+      applyFilters();
+    }
+
+    /**
+     * Update active filters display
+     */
+    function updateActiveFilters() {
+      // ... (implementation remains the same, ensures tags call applyFilters)
+      const searchTerm = document.getElementById('search-input').value;
+      const platformFilter = document.getElementById('platform-filter').value;
+      const clubFilter = document.getElementById('club-filter').value;
+      const statusFilter = document.getElementById('status-filter').value;
+
+      const activeFiltersContainer = document.getElementById('active-filters');
+      let filtersHTML = '';
+
+      if (searchTerm) {
+        filtersHTML += `
+               <span class="filter-tag">
+                   Search: "${searchTerm}"
+                   <span class="close" onclick="clearSearchFilter()">&times;</span>
+               </span>
+           `;
+      }
+
+      if (platformFilter) {
+        filtersHTML += `
+               <span class="filter-tag">
+                   Platform: ${platformFilter}
+                   <span class="close" onclick="clearPlatformFilter()">&times;</span>
+               </span>
+           `;
+      }
+
+      if (clubFilter) {
+        filtersHTML += `
+               <span class="filter-tag">
+                   Organization: ${clubFilter}
+                   <span class="close" onclick="clearClubFilter()">&times;</span>
+               </span>
+           `;
+      }
+
+      if (statusFilter) {
+        filtersHTML += `
+               <span class="filter-tag">
+                   Status: ${statusFilter}
+                   <span class="close" onclick="clearStatusFilter()">&times;</span>
+               </span>
+           `;
+      }
+
+      if (filtersHTML) {
+        activeFiltersContainer.innerHTML = filtersHTML;
+        activeFiltersContainer.style.display = 'flex';
+      } else {
+        activeFiltersContainer.style.display = 'none';
+      }
+    }
+
+    // Individual filter clear functions (calls applyFilters)
+    function clearSearchFilter() {
+      document.getElementById('search-input').value = '';
+      applyFilters();
+    }
+
+    function clearPlatformFilter() {
+      document.getElementById('platform-filter').value = '';
+      applyFilters();
+    }
+
+    function clearClubFilter() {
+      document.getElementById('club-filter').value = '';
+      applyFilters();
+    }
+
+    function clearStatusFilter() {
+      document.getElementById('status-filter').value = '';
+      applyFilters();
+    }
+
+    /**
+     * Change page
+     */
+    function changePage(page) {
+      const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
+      if (page >= 1 && page <= totalPages) {
+        currentPage = page;
+        renderOrdersTable();
+      }
+    }
+
+    /**
+     * Save status change - FIXED: Keep modal open until save succeeds
+     */
+    function saveStatusChange() {
+      // CRITICAL: Validate we have the necessary data
+      if (!currentEditOrder) {
+        console.error('❌ No order selected');
+        showError('No order selected for editing');
+        return;
+      }
+
+      if (!currentEditPlatform) {
+        console.error('❌ No platform selected');
+        showError('Platform information is missing. Please close and reopen the edit dialog.');
+        return;
+      }
+
+      if (isSaving) {
+        console.log('⚠️ Save already in progress, ignoring duplicate request');
+        return;
+      }
+
+      const newStatus = document.getElementById('newStatusSelect').value;
+      const orderId = currentEditOrder.Historical_Submission_Id ||
+        currentEditOrder.Submission_Id ||
+        currentEditOrder.submissionId ||
+        currentEditOrder.id;
+
+      if (!newStatus || !['new-order', 'ordered', 'delivered-to-mailroom', 'completed', 'awaiting-club-response', 'cancelled'].includes(newStatus)) {
+        showError('Please select a valid status');
+        return;
+      }
+
+      console.log('💾 Saving status change:', {
+        platform: currentEditPlatform,
+        orderId: orderId,
+        newStatus: newStatus
+      });
+
+      isSaving = true;
+
+      const saveButton = document.querySelector('#editStatusModal .btn-primary');
+      const originalText = saveButton.textContent;
+      saveButton.textContent = 'Updating...';
+      saveButton.disabled = true;
+
+      const originalStatus = currentEditOrder.status || currentEditOrder.Order_Status;
+
+      // Update locally for immediate UI feedback
+      currentEditOrder.status = newStatus;
+      currentEditOrder.Order_Status = newStatus;
+
+      console.log(`✅ Status updated locally: ${originalStatus} → ${newStatus}`);
+
+      // Update the table immediately (but don't close modal yet!)
+      applyFilters();
+
+      // 🔥 FIX: Send to backend BEFORE closing modal
+      google.script.run
+        .withSuccessHandler(function (result) {
+          isSaving = false;
+          saveButton.textContent = originalText;
+          saveButton.disabled = false;
+
+          if (result.success) {
+            const statusDisplay = newStatus.split('-').map(w =>
+              w.charAt(0).toUpperCase() + w.slice(1)
+            ).join(' ');
+
+            // ✅ Close modal AFTER successful save
+            closeEditModal();
+            showSuccess(`Status updated to ${statusDisplay}`);
+            refreshDashboard();
+          } else {
+            showError('Failed to update status: ' + result.message);
+            // Rollback on failure
+            currentEditOrder.status = originalStatus;
+            currentEditOrder.Order_Status = originalStatus;
+            applyFilters();
+          }
+        })
+        .withFailureHandler(function (error) {
+          isSaving = false;
+          saveButton.textContent = originalText;
+          saveButton.disabled = false;
+          showError('Status update error: ' + error.message);
+          // Rollback on failure
+          currentEditOrder.status = originalStatus;
+          currentEditOrder.Order_Status = originalStatus;
+          applyFilters();
+        })
+        .updateOrderStatus(orderId, currentEditPlatform, newStatus);
+    }
+    /**
+     * Export data to CSV
+     */
+    function exportData() {
+      // ... (implementation remains the same)
+      const headers = [
+        'Platform', 'Order ID', 'Organization', 'Event Name', 'Event Date',
+        'Pickup Person', 'Pickup Email', 'Pickup Phone', 'Total', 'Status', 'Timestamp'
+      ];
+
+      let csvContent = headers.join(',') + '\n';
+
+      filteredOrders.forEach(order => {
+        const total = order.platform === 'amazon' ? order.totalOrder : order.cartTotal;
+        const orderId = order.platform === 'amazon' ? order.orderNumbers : order.orderConfirmation;
+        const row = [
+          order.platform,
+          `"${orderId || 'N/A'}"`,
+          `"${order.organization || 'N/A'}"`,
+          `"${order.eventName || 'N/A'}"`,
+          `"${order.eventDate || 'N/A'}"`,
+          `"${order.pickupPerson || 'N/A'}"`,
+          `"${order.pickupEmail || 'N/A'}"`,
+          `"${order.pickupPhone || 'N/A'}"`,
+          (total || 0),
+          order.status || 'pending',
+          `"${order.timestamp || 'N/A'}"`
+        ];
+
+        csvContent += row.map(d => String(d).replace(/"/g, '""')).join(',') + '\n';
+      });
+
+      const blob = new Blob([csvContent], {
+        type: 'text/csv;charset=utf-8;'
+      });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `orders_export_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    /**
+     * Test Sheets Connection on Setup Tab
+     */
+    function testConnection() {
+      document.getElementById('connection-status').innerHTML = '<div class="loading">Testing connection...</div>';
+
+      google.script.run
+        .withSuccessHandler(function (result) {
+          if (result.success) {
+            document.getElementById('connection-status').innerHTML = `
+                       <div class="success">
+                           <strong>✅ Connection Successful!</strong><br>
+                           Spreadsheet: ${result.spreadsheetName}<br>
+                           Available Sheets: ${result.availableSheets.join(', ')}<br>
+                           <a href="${result.url}" target="_blank">View Spreadsheet</a>
+                       </div>
+                    `;
+          } else {
+            document.getElementById('connection-status').innerHTML = `
+                       <div class="error">
+                           <strong>❌ Connection Failed:</strong><br>
+                           ${result.message}
+                       </div>
+                    `;
+          }
+        })
+        .withFailureHandler(function (error) {
+          document.getElementById('connection-status').innerHTML = `
+                   <div class="error">
+                       <strong>❌ Connection Error:</strong><br>
+                       ${error.message}
+                   </div>
+                `;
+        })
+        .testSpreadsheetConnection();
+    }
+
+    /**
+     * Close modal when clicking outside
+     */
+    window.onclick = function (event) {
+      const modals = ['orderModal', 'editStatusModal', 'editDetailsModal', 'createOrderModal'];
+      modals.forEach(id => {
+        const modal = document.getElementById(id);
+        if (event.target === modal) {
+          if (id === 'editStatusModal') closeEditModal();
+          else if (id === 'editDetailsModal') closeEditDetailsModal();
+          else if (id === 'createOrderModal') closeCreateOrderModal();
+          else modal.style.display = 'none';
+        }
+      });
+    }
+
+
+    /**
+     * Renders the Status Breakdown table (called by refreshDashboard)
+     * Shows all statuses, even if count is 0
+     */
+    /**
+     * Renders the Status Breakdown in 2 columns
+     * Left: Summary statuses (New/Completed/Cancelled)
+     * Right: Process statuses (Ordered/Delivered/Awaiting)
+     */
+    function renderStatusTable(statusObj) {
+      const summaryBody = document.getElementById('status-table-summary');
+      const processBody = document.getElementById('status-table-process');
+
+      summaryBody.innerHTML = "";
+      processBody.innerHTML = "";
+
+      // Summary statuses (start/end states)
+      const summaryStatuses = [
+        { key: 'new-order', label: 'New Order', color: 'new-order' },
+        { key: 'completed', label: 'Completed', color: 'completed' },
+        { key: 'cancelled', label: 'Cancelled', color: 'cancelled' }
+      ];
+
+      // Process statuses (in-progress states)
+      const processStatuses = [
+        { key: 'ordered', label: 'Ordered', color: 'ordered' },
+        { key: 'delivered-to-mailroom', label: 'Delivered to Mailroom', color: 'delivered-to-mailroom' },
+        { key: 'awaiting-club-response', label: 'Awaiting Club Response', color: 'awaiting-club-response' }
+      ];
+
+      // Render summary column
+      summaryStatuses.forEach(config => {
+        const totalCount = (statusObj.total && statusObj.total[config.key]) || 0;
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>
+                <span class="status-indicator status-indicator-${config.color}"></span>
+                ${config.label}
+            </td>
+            <td>${totalCount}</td>
+        `;
+        summaryBody.appendChild(tr);
+      });
+
+      // Render process column
+      processStatuses.forEach(config => {
+        const totalCount = (statusObj.total && statusObj.total[config.key]) || 0;
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>
+                <span class="status-indicator status-indicator-${config.color}"></span>
+                ${config.label}
+            </td>
+            <td>${totalCount}</td>
+        `;
+        processBody.appendChild(tr);
+      });
+    }
+
+    /**
+     * Refresh dashboard metrics from Google Sheets (separate, lightweight call)
+     */
+    function refreshDashboard() {
+      google.script.run.withSuccessHandler(function (res) {
+        if (!res.success) {
+          console.error('Failed to refresh dashboard:', res.message);
+          return;
+        }
+
+        // Update order counts
+        document.getElementById('amazon-orders').textContent = res.amazonOrders;
+        document.getElementById('target-orders').textContent = res.targetOrders;
+        document.getElementById('total-orders').textContent = res.totalOrders;
+        document.getElementById('amazon-spent').textContent = '$' + (res.amazonSpent || 0).toFixed(2);
+        document.getElementById('target-spent').textContent = '$' + (res.targetSpent || 0).toFixed(2);
+        document.getElementById('total-spent').textContent = '$' + (res.totalSpent || 0).toFixed(2);
+
+
+        // Update status breakdown table
+        if (res.statuses) {
+          renderStatusTable(res.statuses);
+        }
+      }).withFailureHandler(function (error) {
+        console.error('Error refreshing dashboard:', error);
+      }).getOrderTotals();
+    }
+
+    /**
+     * Toggle completed orders visibility
+     */
+    function toggleCompletedOrders() {
+      hideCompleted = !hideCompleted;
+
+      const btn = document.getElementById('hideCompletedBtn');
+
+      if (hideCompleted) {
+        btn.textContent = 'Show Delivered Orders';
+        btn.className = 'btn btn-primary';
+      } else {
+        btn.textContent = 'Hide Delivered Orders';
+        btn.className = 'btn btn-secondary';
+      }
+
+      applyFilters();
+    }
+
+
+    // ============================================
+    // DOCUMENT SUBMISSIONS (Separate from Orders)
+    // ============================================
+
+    function showDocumentLoading(message) {
+      document.getElementById('documents-content').innerHTML = `
+           <div class="loading">
+           <div>📄 ${message}</div>
+           <p>Please wait...</p>
+           </div>
+           `;
+    }
+
+    function showDocumentError(message) {
+      document.getElementById('documents-content').innerHTML = `
+           <div class="error">
+           <strong>Error:</strong> ${message}
+           <br><br>
+           <button class="btn btn-primary" onclick="loadDocumentData()">Try Again</button>
+           </div>
+           `;
+    }
+
+
+    function loadDocumentData() {
+      showDocumentLoading('Loading document submissions...');
+
+      google.script.run
+        .withSuccessHandler(function (result) {
+          if (result.success) {
+            documentData = result.documents.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            displayDocuments(documentData);
+            showSuccess('Document submissions loaded successfully');
+          } else {
+            showDocumentError('Failed to load documents: ' + result.message);
+          }
+        })
+        .withFailureHandler(function (error) {
+          showDocumentError('Error loading documents: ' + error.message);
+        })
+        .getDocumentSubmissions();
+    }
+
+    function displayDocuments(documents) {
+      let tableHTML = `
+       <table class="orders-table">
+       <thead>
+           <tr>
+               <th>Timestamp</th>
+               <th>Name</th>
+               <th>Organization</th>
+               <th>Event Name</th>
+               <th>Event Date</th>
+               <th>Email</th>
+               <th>Documents</th>
+               <th>Actions</th>
+           </tr>
+       </thead>
+       <tbody>
+       `;
+
+      if (documents.length === 0) {
+        tableHTML += `
+       <tr>
+           <td colspan="8" style="text-align: center; padding: 40px; color: #6c757d;">
+               No document submissions found
+           </td>
+       </tr>
+       `;
+      } else {
+        documents.forEach(doc => {
+          const fullName = [doc.firstName, doc.lastName].filter(n => n).join(' ') || 'N/A';
+
+          // ✅ UPDATED: Only 4 file types now
+          const docFiles = [
+            { field: 'nonPOFile', label: 'Non-PO' },
+            { field: 'signInFile', label: 'Sign-In' },
+            { field: 'invoiceFile', label: 'Invoice' },
+            { field: 'eventFlyerFile', label: 'Flyer' }
+            // ❌ REMOVED: officialReceiptFile
+          ];
+
+          const submittedDocs = docFiles.filter(docType =>
+            doc[docType.field] && doc[docType.field].trim() !== ''
+          );
+
+          const docCount = submittedDocs.length;
+          const docSummary = submittedDocs.map(d => d.label).join(', ') || 'None';
+
+          tableHTML += `
+           <tr class="clickable-row" onclick="showDocumentDetails('${doc.id}')">
+               <td>${doc.timestamp || 'N/A'}</td>
+               <td>${fullName}</td>
+               <td>${doc.organization || 'N/A'}</td>
+               <td>${doc.eventName || 'N/A'}</td>
+               <td>${doc.eventDate || 'N/A'}</td>
+               <td>${doc.email || 'N/A'}</td>
+               <td>
+                   <span class="quantity-badge">${docCount}/4 files</span>
+                   <br><small style="color: #6c757d;">${docSummary}</small>
+               </td>
+               <td onclick="event.stopPropagation();">
+                   <button class="btn btn-primary" style="font-size: 12px; padding: 4px 8px; margin-right: 4px;" 
+                           onclick="showDocumentDetails('${doc.id}')">
+                       View
+                   </button>
+                   <button class="btn btn-secondary" style="font-size: 12px; padding: 4px 8px;" 
+                           onclick="editDocumentSubmission('${doc.id}')">
+                       Edit
+                   </button>
+               </td>
+           </tr>
+       `;
+        });
+      }
+
+      tableHTML += `
+       </tbody>
+       </table>
+       `;
+
+      document.getElementById('documents-content').innerHTML = tableHTML;
+    }
+
+    function showDocumentDetails(docId) {
+      // ... (implementation remains the same for document details modal)
+      const doc = documentData.find(d => d.id == docId);
+      if (!doc) return;
+
+      const modal = document.getElementById('orderModal');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalBody = document.getElementById('modalBody');
+
+      modalTitle.textContent = `Document Submission Details - ${doc.firstName || ''} ${doc.lastName || ''}`;
+
+      let modalContent = `
+           <div class="order-details-section">
+           <h3 class="section-title">📋 Submission Information</h3>
+           <div class="details-grid">
+               <div class="detail-item">
+                   <span class="detail-label">Submission Date</span>
+                   <span class="detail-value">${doc.timestamp || 'N/A'}</span>
+               </div>
+               <div class="detail-item">
+                   <span class="detail-label">Submitter Name</span>
+                   <span class="detail-value">${doc.firstName || ''} ${doc.lastName || ''}</span>
+               </div>
+               <div class="detail-item">
+                   <span class="detail-label">Email Address</span>
+                   <span class="detail-value">${doc.email || 'N/A'}</span>
+               </div>
+           </div>
+           </div>
+           
+           <div class="order-details-section">
+           <h3 class="section-title">🏛️ Event Information</h3>
+           <div class="details-grid">
+               <div class="detail-item">
+                   <span class="detail-label">Student Organization</span>
+                   <span class="detail-value">${doc.organization || 'N/A'}</span>
+               </div>
+               <div class="detail-item">
+                   <span class="detail-label">Event Name</span>
+                   <span class="detail-value">${doc.eventName || 'N/A'}</span>
+               </div>
+               <div class="detail-item">
+                   <span class="detail-label">Event Date</span>
+                   <span class="detail-value">${doc.eventDate || 'N/A'}</span>
+               </div>
+           </div>
+           </div>
+           
+           <div class="order-details-section">
+           <h3 class="section-title">📄 Submitted Documents</h3>
+           <table class="items-table">
+               <thead>
+                   <tr>
+                       <th>Document Type</th>
+                       <th>Status</th>
+                       <th>File Link</th>
+                       <th>Actions</th>
+                   </tr>
+               </thead>
+               <tbody>
+           `;
+
+      const docTypes = [{
+        label: 'Non-PO File',
+        field: 'nonPOFile'
+      }, {
+        label: 'Sign-In File',
+        field: 'signInFile'
+      }, {
+        label: 'Invoice File',
+        field: 'invoiceFile'
+      }, {
+        label: 'Event Flyer File',
+        field: 'eventFlyerFile'
+      }];
+
+      docTypes.forEach(docType => {
+        const fileLink = doc[docType.field];
+        const hasFile = fileLink && fileLink.trim() !== '' && fileLink.toLowerCase() !== 'n/a';
+
+        modalContent += `
+           <tr>
+               <td><strong>${docType.label}</strong></td>
+               <td>
+                   ${hasFile ?
+            '<span class="status-badge status-completed">Submitted</span>' :
+            '<span class="status-badge status-pending">Not Submitted</span>'
+          }
+               </td>
+               <td>
+                   ${hasFile ?
+            `<a href="${fileLink}" target="_blank" class="item-url" style="font-size: 12px;">${fileLink.substring(0, 50)}${fileLink.length > 50 ? '...' : ''}</a>` :
+            '<span style="color: #6c757d; font-size: 12px;">No file uploaded</span>'
+          }
+               </td>
+               <td>
+                   ${hasFile ?
+            `<button class="btn btn-primary" style="font-size: 11px; padding: 4px 8px;" 
+                           onclick="window.open('${fileLink}', '_blank')">
+                       Open File
+                    </button>` :
+            '<span style="color: #6c757d;">-</span>'
+          }
+               </td>
+           </tr>
+           `;
+      });
+
+      modalContent += `
+               </tbody>
+           </table>
+           </div>
+           
+           <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
+           <button class="btn btn-secondary" onclick="closeOrderModal()">Close</button>
+           <button class="btn btn-primary" onclick="editDocumentSubmission('${doc.id}')">
+               Edit Submission
+           </button>
+           </div>
+           `;
+
+      modalBody.innerHTML = modalContent;
+      modal.style.display = 'block';
+    }
+
+    function editDocumentSubmission(docId) {
+      // ... (implementation remains the same for document edit modal)
+      const doc = documentData.find(d => d.id == docId);
+      if (!doc) {
+        showError('Document submission not found');
+        return;
+      }
+
+      closeOrderModal();
+
+      const modal = document.getElementById('editDetailsModal');
+      const modalTitle = document.getElementById('editDetailsModalTitle');
+
+      modalTitle.textContent = 'Edit Document Submission';
+
+      document.getElementById('amazonFields').style.display = 'none';
+      document.getElementById('targetFields').style.display = 'none';
+
+      // Populate basic fields (Mapping doc fields to order modal inputs)
+      document.getElementById('editOrganization').value = doc.organization || '';
+      document.getElementById('editEventName').value = doc.eventName || '';
+      document.getElementById('editEventDate').value = doc.eventDate || '';
+      document.getElementById('editPickupPerson').value = doc.firstName || '';
+      document.getElementById('editPickupEmail').value = doc.email || '';
+      document.getElementById('editNotes').value = doc.lastName || ''; // Using Notes for LastName in doc edit
+
+      window.currentEditDocument = doc;
+      currentEditOrder = null; // Clear order edit state
+
+      modal.style.display = 'block';
+    }
+
+    function saveDocumentDetails() {
+      // ... (implementation remains the same for saving document)
+      if (!window.currentEditDocument) {
+        showError('No document selected for editing');
+        return;
+      }
+
+      const updatedData = {
+        'Student_Organization': document.getElementById('editOrganization').value,
+        'Event_Name': document.getElementById('editEventName').value,
+        'Event_Date': document.getElementById('editEventDate').value,
+        'First_Name': document.getElementById('editPickupPerson').value,
+        'Email_Address': document.getElementById('editPickupEmail').value,
+        'Last_Name': document.getElementById('editNotes').value
+      };
+
+      const saveButton = document.querySelector('#editDetailsModal .btn-primary');
+      const originalText = saveButton.textContent;
+      saveButton.textContent = 'Saving...';
+      saveButton.disabled = true;
+
+      // Update local data
+      Object.assign(window.currentEditDocument, {
+        organization: updatedData['Student_Organization'],
+        eventName: updatedData['Event_Name'],
+        eventDate: updatedData['Event_Date'],
+        firstName: updatedData['First_Name'],
+        email: updatedData['Email_Address'],
+        lastName: updatedData['Last_Name']
+      });
+
+      // Update display
+      displayDocuments(documentData);
+
+      // Save to Google Sheets
+      google.script.run
+        .withSuccessHandler(function (result) {
+          saveButton.textContent = originalText;
+          saveButton.disabled = false;
+
+          if (result.success) {
+            showSuccess('Document submission updated successfully');
+            closeEditDetailsModal();
+            window.currentEditDocument = null;
+          } else {
+            showError('Failed to update document: ' + result.message);
+          }
+        })
+        .withFailureHandler(function (error) {
+          saveButton.textContent = originalText;
+          saveButton.disabled = false;
+          showError('Error updating document: ' + error.message);
+        })
+        .updateDocumentSubmission(window.currentEditDocument.id, updatedData);
+    }
+
+    function exportDocumentData() {
+      // ... (implementation remains the same for exporting document)
+      const headers = [
+        'Timestamp', 'First Name', 'Last Name', 'Email', 'Organization',
+        'Event Name', 'Event Date', 'Non-PO File', 'Sign-In File',
+        'Invoice File', 'Event Flyer File', 'Official Receipt File'
+      ];
+
+      let csvContent = headers.join(',') + '\n';
+
+      documentData.forEach(doc => {
+        const row = [
+          `"${doc.timestamp || 'N/A'}"`,
+          `"${doc.firstName || 'N/A'}"`,
+          `"${doc.lastName || 'N/A'}"`,
+          `"${doc.email || 'N/A'}"`,
+          `"${doc.organization || 'N/A'}"`,
+          `"${doc.eventName || 'N/A'}"`,
+          `"${doc.eventDate || 'N/A'}"`,
+          `"${doc.nonPOFile || 'N/A'}"`,
+          `"${doc.signInFile || 'N/A'}"`,
+          `"${doc.invoiceFile || 'N/A'}"`,
+          `"${doc.eventFlyerFile || 'N/A'}"`,
+          `"${doc.officialReceiptFile || 'N/A'}"`
+        ];
+
+        csvContent += row.map(d => String(d).replace(/"/g, '""')).join(',') + '\n';
+      });
+
+      const blob = new Blob([csvContent], {
+        type: 'text/csv;charset=utf-8;'
+      });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `document_submissions_export_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function testDocumentSubmissions() {
+      // ... (implementation remains the same for document test)
+      document.getElementById('document-test-status').innerHTML = '<div class="loading">Testing document submissions...</div>';
+
+      google.script.run
+        .withSuccessHandler(function (result) {
+          if (result.success) {
+            document.getElementById('document-test-status').innerHTML = `
+                       <div class="success">
+                           <strong>✅ Document Submissions Test Successful!</strong><br>
+                           Found ${result.documents.length} document submissions<br>
+                           Sheet: ${result.message}
+                       </div>
+                    `;
+          } else {
+            document.getElementById('document-test-status').innerHTML = `
+                       <div class="error">
+                           <strong>❌ Document Submissions Test Failed:</strong><br>
+                           ${result.message}
+                       </div>
+                    `;
+          }
+        })
+        .withFailureHandler(function (error) {
+          document.getElementById('document-test-status').innerHTML = `
+                   <div class="error">
+                       <strong>❌ Document Submissions Error:</strong><br>
+                       ${error.message}
+                   </div>
+                `;
+        })
+        .getDocumentSubmissions();
+    }
+
+    // ============================================
+    // CONSOLIDATED INITIALIZATION (CRITICAL FIX)
+    // ============================================
+
+    document.addEventListener("DOMContentLoaded", function () {
+      // 1. Initial Dashboard Metrics
+      refreshDashboard();
+
+      // 2. Load the main Order Data and Table
+      loadOrderData();
+
+      // 3. Setup Tab Check
+      testConnection();
+
+      // 4. Add Enter key support for search
+      const searchInput = document.getElementById('search-input');
+      if (searchInput) {
+        searchInput.addEventListener('keypress', function (e) {
+          if (e.key === 'Enter') {
+            applyFilters();
+          }
+        });
+      }
+
+      // Ensure the correct tab is displayed on load
+      showTab('orders'); // Show the orders tab by default
+    });
+  </script>
+</body>
+
+</html>
